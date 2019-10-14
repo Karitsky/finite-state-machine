@@ -3,6 +3,7 @@ class FSM {
     constructor(config) {
         this.config = config;
         this.currentState = this.config.initial;
+        this.history = [false];
     }
 
     getState() {
@@ -13,6 +14,7 @@ class FSM {
         if (this.config.states[state] == undefined) {
             throw new Error('hmmm... exception?');
         }
+        this.history.push(this.currentState);
         this.currentState = state;
     }
 
@@ -20,6 +22,7 @@ class FSM {
         if (this.config.states[this.currentState].transitions[event] == undefined) {
             throw new Error('hmmm... exception?');
         }
+        this.history.push(this.currentState);
         this.currentState = this.config.states[this.currentState].transitions[event];
     }
 
@@ -42,12 +45,14 @@ class FSM {
         return arrayOfStates;
     }
 
-    /**
-     * Goes back to previous state.
-     * Returns false if undo is not available.
-     * @returns {Boolean}
-     */
-    undo() {}
+    undo() {
+        if (this.history[this.history.length - 1] != false) {
+            this.currentState = this.history.pop();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Goes redo to state.
