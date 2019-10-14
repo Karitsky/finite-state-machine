@@ -1,40 +1,46 @@
 class FSM {
-    /**
-     * Creates new FSM instance.
-     * @param config
-     */
-    constructor(config) {}
 
-    /**
-     * Returns active state.
-     * @returns {String}
-     */
-    getState() {}
+    constructor(config) {
+        this.config = config;
+        this.currentState = this.config.initial;
+    }
 
-    /**
-     * Goes to specified state.
-     * @param state
-     */
-    changeState(state) {}
+    getState() {
+        return this.currentState;
+    }
 
-    /**
-     * Changes state according to event transition rules.
-     * @param event
-     */
-    trigger(event) {}
+    changeState(state) {
+        if (this.config.states[state] == undefined) {
+            throw new Error('hmmm... exception?');
+        }
+        this.currentState = state;
+    }
 
-    /**
-     * Resets FSM state to initial.
-     */
-    reset() {}
+    trigger(event) {
+        if (this.config.states[this.currentState].transitions[event] == undefined) {
+            throw new Error('hmmm... exception?');
+        }
+        this.currentState = this.config.states[this.currentState].transitions[event];
+    }
 
-    /**
-     * Returns an array of states for which there are specified event transition rules.
-     * Returns all states if argument is undefined.
-     * @param event
-     * @returns {Array}
-     */
-    getStates(event) {}
+    reset() {
+        this.currentState = this.config.initial
+    }
+
+    getStates(event) {
+        let arrayOfStates = [];
+        if (event == undefined) {
+            arrayOfStates = Object.keys(this.config.states);
+        } else {
+            let allStates = Object.keys(this.config.states);
+            for (let i = 0; i < allStates.length; i++) {
+                if (event in this.config.states[allStates[i]].transitions) {
+                    arrayOfStates.push(allStates[i]);
+                }
+            }
+        }
+        return arrayOfStates;
+    }
 
     /**
      * Goes back to previous state.
