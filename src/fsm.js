@@ -4,6 +4,7 @@ class FSM {
         this.config = config;
         this.currentState = this.config.initial;
         this.history = [false];
+        this.backToFuture = [false];
     }
 
     getState() {
@@ -15,6 +16,7 @@ class FSM {
             throw new Error('hmmm... exception?');
         }
         this.history.push(this.currentState);
+        this.backToFuture = [false];
         this.currentState = state;
     }
 
@@ -23,6 +25,7 @@ class FSM {
             throw new Error('hmmm... exception?');
         }
         this.history.push(this.currentState);
+        this.backToFuture = [false];
         this.currentState = this.config.states[this.currentState].transitions[event];
     }
 
@@ -47,6 +50,7 @@ class FSM {
 
     undo() {
         if (this.history[this.history.length - 1] != false) {
+            this.backToFuture.push(this.currentState);
             this.currentState = this.history.pop();
             return true;
         } else {
@@ -54,17 +58,20 @@ class FSM {
         }
     }
 
-    /**
-     * Goes redo to state.
-     * Returns false if redo is not available.
-     * @returns {Boolean}
-     */
-    redo() {}
+    redo() {
+        if (this.backToFuture[this.backToFuture.length - 1] != false) {
+            this.history.push(this.currentState);
+            this.currentState = this.backToFuture.pop();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-    /**
-     * Clears transition history
-     */
-    clearHistory() {}
+    clearHistory() {
+        this.history = [false];
+        this.backToFuture = [false];
+    }
 }
 
 module.exports = FSM;
